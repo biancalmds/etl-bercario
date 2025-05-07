@@ -1,8 +1,8 @@
-"""criação das tabelas
+"""criação das tabelas no ssms
 
-Revision ID: 4cea80e8d489
+Revision ID: 32a660d9c42c
 Revises: 
-Create Date: 2025-05-06 18:30:35.151563
+Create Date: 2025-05-07 16:12:53.293876
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4cea80e8d489'
+revision: str = '32a660d9c42c'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -31,7 +31,7 @@ def upgrade() -> None:
     sa.Column('nome', sa.String(length=200), nullable=False),
     sa.Column('sexo', sa.CHAR(length=1), nullable=False),
     sa.Column('dt_nascimento', sa.Date(), nullable=False),
-    sa.Column('telefone', sa.CHAR(length=11), nullable=False),
+    sa.Column('telefone', sa.CHAR(length=15), nullable=False),
     sa.Column('endereco', sa.String(length=500), nullable=False),
     sa.PrimaryKeyConstraint('RG')
     )

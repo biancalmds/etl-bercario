@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from dotenv import load_dotenv
 
 from modelos.base import Base
-import modelos.relacoes
+import modelos.Genitor, modelos.Bebe, modelos.Cargo, modelos.ProfissionalSaude, modelos.ProfissionalSaudeHasBebe
 
 load_dotenv()
 
