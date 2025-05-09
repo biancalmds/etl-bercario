@@ -1,8 +1,8 @@
-"""criação das tabelas no ssms
+"""criação das tabelas do minimundo bercario 
 
-Revision ID: 32a660d9c42c
+Revision ID: b19e4aa36550
 Revises: 
-Create Date: 2025-05-07 16:12:53.293876
+Create Date: 2025-05-08 20:43:27.207695
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '32a660d9c42c'
+revision: str = 'b19e4aa36550'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
