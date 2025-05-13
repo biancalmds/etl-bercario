@@ -2,6 +2,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from etl.abstract_etl import AbstractETL
@@ -17,10 +18,13 @@ class ETL(AbstractETL):
         super().__init__(origem, destino)
 
     def extract(self):
-        self._dados_extraidos = {}
-        nome_planilhas = pd.ExcelFile(self.origem).sheet_names
-        for planilha in nome_planilhas:
-            self._dados_extraidos[planilha] = pd.read_excel(self.origem, sheet_name=planilha)
+        try:
+            self._dados_extraidos = {}
+            nome_planilhas = pd.ExcelFile(self.origem).sheet_names
+            for planilha in nome_planilhas:
+                self._dados_extraidos[planilha] = pd.read_excel(self.origem, sheet_name=planilha)
+        except FileNotFoundError:
+            print("Não foi possível encontrar o arquivo e extrair os dados dele.")
 
     def transform(self):
         self._dados_transformados = {}
@@ -36,18 +40,23 @@ class ETL(AbstractETL):
             self._dados_transformados["Profissional_saude_has_Bebe"] = ProfissionalSaudeHasBebe.from_dataframe(self._dados_extraidos["Profissional_saude_has_Bebe"])
 
     def load(self):
-        engine = create_engine(self.destino)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        
-        dados_genitor = self._dados_transformados["Genitor"]
-        session.add_all(dados_genitor)
-        dados_bebe = self._dados_transformados["Bebe"]
-        session.add_all(dados_bebe)
-        dados_cargo = self._dados_transformados["Cargo"]
-        session.add_all(dados_cargo)
-        dados_prof_saude = self._dados_transformados["Profissional_saude"]
-        session.add_all(dados_prof_saude)
-        dados_prof_has_bebe = self._dados_transformados["Profissional_saude_has_Bebe"]
-        session.add_all(dados_prof_has_bebe)
-        session.commit()
+        try:
+            engine = create_engine(self.destino)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            dados_genitor = self._dados_transformados["Genitor"]
+            session.add_all(dados_genitor)
+            dados_bebe = self._dados_transformados["Bebe"]
+            session.add_all(dados_bebe)
+            dados_cargo = self._dados_transformados["Cargo"]
+            session.add_all(dados_cargo)
+            dados_prof_saude = self._dados_transformados["Profissional_saude"]
+            session.add_all(dados_prof_saude)
+            dados_prof_has_bebe = self._dados_transformados["Profissional_saude_has_Bebe"]
+            session.add_all(dados_prof_has_bebe)
+            session.commit()
+        except IntegrityError:
+            print("Esses registros já existem no banco de dados e não é possível inserir chaves duplicadas.")
+            session.rollback()
+        except KeyError:
+            print("Não foi possível encontrar alguma entidade para subir para o banco de dados.")

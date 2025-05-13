@@ -3,7 +3,6 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
 from etl.etl import ETL
 
@@ -18,7 +17,7 @@ banco_de_dados = os.getenv("BANCO_DE_DADOS")
 
 # %%
 # testando o ETL
-origem = "./dads_bercario.xlsx"
+origem = "./dados_bercario.xlsx"
 destino = f"mssql+pyodbc://{usuario}:{senha}@{host}/{banco_de_dados}?driver=ODBC+Driver+17+for+SQL+Server"
 
 engine = create_engine(destino)
@@ -27,24 +26,9 @@ session = Session()
 
 etl = ETL(origem, destino)
 
-#%%
-## extraindo os dados
-try:
-    etl.extract()
-except FileNotFoundError:
-    print("Não foi possível encontrar o arquivo e extrair os dados dele.")
-
-#%%
-# transformando os dados
-try:
-    etl.transform()
-except:
-    pass
-
 # %%
-# carregando os dados no banco de dados
-try:
-    etl.load()
-except IntegrityError:
-    print("Esses registros já existem no banco de dados e não é possível inserir chaves duplicadas.")
-    session.rollback()
+etl.extract()
+#%%
+etl.transform()
+#%%
+etl.load()
